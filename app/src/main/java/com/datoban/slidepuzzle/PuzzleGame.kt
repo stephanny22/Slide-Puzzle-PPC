@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -34,36 +35,56 @@ fun PreviewPuzzle(modifier: Modifier = Modifier){
 }
 
 @Composable
-fun SlidingPuzzle(modifier: Modifier = Modifier){
+fun SlidingPuzzle(modifier: Modifier = Modifier) {
     var grid by remember {
         mutableStateOf(generateGrid())
     }
-    var emptyPosition by remember{
+    var emptyPosition by remember {
         mutableStateOf(findEmptyPosition(grid))
     }
-    Box(modifier= Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-        Canvas(modifier = Modifier
-            .size(300.dp)
-            .pointerInput(Unit){
-                detectDragGestures(
-                    onDragEnd = {},
-                    onDragCancel = {
-                },
-                onDrag = {change, dragAmount ->
-                    val direction = getDragDirection(dragAmount)
-                    if (direction !=null){
-                        val touchedBox= findTouchedBox(change.position, grid.size, size.height/3f)
-                        if(touchedBox != null){
-                            var (newGrid,newEmptyPosition)= grid.tryMove(
-                                direction,emptyPosition,touchedBox
-                            )
-                            grid=newGrid
-                            emptyPosition=newEmptyPosition
+    var moves by remember {
+        mutableStateOf(0)
+    }
+    Box(modifier = Modifier.fillMaxSize()) {
+        androidx.compose.material3.Text(
+            text = "Movimientos: $moves",
+            fontSize = 18.sp,
+            modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)
+        )
+        Canvas(
+            modifier = Modifier
+                .size(300.dp)
+                .align(Alignment.Center)
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragEnd = {},
+                        onDragCancel = {},
+                        onDrag = { change, dragAmount ->
+
+                            val direction = getDragDirection(dragAmount)
+
+                            if (direction != null) {
+                                val touchedBox = findTouchedBox(
+                                    change.position,
+                                    grid.size,
+                                    size.height / 3f
+                                )
+
+                                if (touchedBox != null) {
+                                    val (newGrid, newEmptyPosition) =
+                                        grid.tryMove(direction, emptyPosition, touchedBox)
+
+                                    if (newGrid != grid) {
+                                        grid = newGrid
+                                        emptyPosition = newEmptyPosition
+                                        moves++
+                                    }
+                                }
+                            }
                         }
-                    }
+                    )
                 }
-                )
-            }){
+        ) {
             drawGrid(grid)
         }
     }
