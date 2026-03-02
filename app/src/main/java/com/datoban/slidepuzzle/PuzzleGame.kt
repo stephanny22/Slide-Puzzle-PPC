@@ -10,8 +10,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -25,17 +30,18 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.abs
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
 @Preview(showBackground = true, showSystemUi= true)
-
 @Composable
-fun PreviewPuzzle(modifier: Modifier = Modifier){
-    SlidingPuzzle()
-
+fun PreviewPuzzle() {
+    val navController = rememberNavController()
+    SlidingPuzzle(navController = navController)
 }
 
 @Composable
-fun SlidingPuzzle(modifier: Modifier = Modifier) {
+fun SlidingPuzzle(navController: NavController) {
     var grid by remember {
         mutableStateOf(generateGrid())
     }
@@ -78,6 +84,12 @@ fun SlidingPuzzle(modifier: Modifier = Modifier) {
                                         grid = newGrid
                                         emptyPosition = newEmptyPosition
                                         moves++
+
+                                        if (isSolved(newGrid)) {
+                                            navController.navigate("win/$moves") {
+                                                popUpTo("game") { inclusive = true }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -86,6 +98,33 @@ fun SlidingPuzzle(modifier: Modifier = Modifier) {
                 }
         ) {
             drawGrid(grid)
+        }
+    }
+}
+
+@Composable
+fun WinScreen(navController: NavController, moves: Int) {
+
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+            Text("¡Ganaste!", fontSize = 32.sp)
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Text(text= "Movimientos Totales: $moves", fontSize = 18.sp)
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button (onClick = {
+                navController.navigate("game") {
+                    popUpTo("game") { inclusive = true }
+                }
+            }) {
+                Text("Volver a jugar")
+            }
         }
     }
 }
@@ -205,4 +244,13 @@ fun findEmptyPosition(grid:List<List<Int>>): Pair<Int, Int> {
         }
     }
     throw IllegalArgumentException("No empty space found un the grid")
+}
+
+fun isSolved(grid: List<List<Int>>): Boolean {
+    val correct = listOf(
+        listOf(1,2,3),
+        listOf(4,5,6),
+        listOf(7,8,0)
+    )
+    return grid == correct
 }

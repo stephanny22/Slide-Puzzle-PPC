@@ -11,6 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.datoban.slidepuzzle.ui.theme.SlidePuzzleTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,7 +22,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SlidePuzzleTheme {
-                PreviewPuzzle()
+                AppNavigation()
             }
         }
     }
@@ -38,5 +41,26 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 fun GreetingPreview() {
     SlidePuzzleTheme {
         Greeting("Android")
+    }
+}
+
+@Composable
+fun AppNavigation() {
+
+    val navController = rememberNavController()
+
+    NavHost(
+        navController = navController,
+        startDestination = "game"
+    ) {
+
+        composable("game") {
+            SlidingPuzzle(navController)
+        }
+
+        composable("win/{moves}") { backStackEntry ->
+            val moves = backStackEntry.arguments?.getString("moves")?.toIntOrNull() ?: 0
+            WinScreen(navController, moves)
+        }
     }
 }
