@@ -40,8 +40,9 @@ fun PreviewPuzzle() {
     SlidingPuzzle(navController = navController)
 }
 
-@Composable
+/**@Composable
 fun SlidingPuzzle(navController: NavController) {
+
     var grid by remember {
         mutableStateOf(generateGrid())
     }
@@ -52,10 +53,36 @@ fun SlidingPuzzle(navController: NavController) {
         mutableStateOf(0)
     }
     Box(modifier = Modifier.fillMaxSize()) {
-        androidx.compose.material3.Text(
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 40.dp)
+        ) {
+
+            Text(
+                text = "Puzzle Taller",
+                fontSize = 28.sp
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Button(onClick = {
+                grid = generateGrid()
+                emptyPosition = findEmptyPosition(grid)
+                moves = 0
+            }) {
+                Text("Reiniciar")
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+        }
+        Text(
             text = "Movimientos: $moves",
             fontSize = 18.sp,
-            modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(16.dp)
         )
         Canvas(
             modifier = Modifier
@@ -100,7 +127,99 @@ fun SlidingPuzzle(navController: NavController) {
             drawGrid(grid)
         }
     }
+}**/
+@Composable
+fun SlidingPuzzle(navController: NavController) {
+
+    // Modificación realizada por Ingrid Rubio
+    // Se agrega título "Puzzle Taller" y botón para reiniciar debajo del tablero
+
+    var grid by remember { mutableStateOf(generateGrid()) }
+    var emptyPosition by remember { mutableStateOf(findEmptyPosition(grid)) }
+    var moves by remember { mutableStateOf(0) }
+
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Text(
+                text = "Puzzle Taller",
+                fontSize = 28.sp
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Canvas(
+                modifier = Modifier
+                    .size(300.dp)
+                    .pointerInput(Unit) {
+
+                        detectDragGestures(
+                            onDragEnd = {},
+                            onDragCancel = {},
+                            onDrag = { change, dragAmount ->
+
+                                val direction = getDragDirection(dragAmount)
+
+                                if (direction != null) {
+
+                                    val touchedBox = findTouchedBox(
+                                        change.position,
+                                        grid.size,
+                                        size.height / 3f
+                                    )
+
+                                    if (touchedBox != null) {
+
+                                        val (newGrid, newEmptyPosition) =
+                                            grid.tryMove(direction, emptyPosition, touchedBox)
+
+                                        if (newGrid != grid) {
+
+                                            grid = newGrid
+                                            emptyPosition = newEmptyPosition
+                                            moves++
+
+                                            if (isSolved(newGrid)) {
+                                                navController.navigate("win/$moves") {
+                                                    popUpTo("game") { inclusive = true }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        )
+                    }
+            ) {
+                drawGrid(grid)
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(onClick = {
+                grid = generateGrid()
+                emptyPosition = findEmptyPosition(grid)
+                moves = 0
+            }) {
+                Text("Reiniciar")
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Text(
+                text = "Movimientos: $moves",
+                fontSize = 18.sp
+            )
+        }
+    }
 }
+
 
 @Composable
 fun WinScreen(navController: NavController, moves: Int) {
