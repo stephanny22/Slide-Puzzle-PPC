@@ -351,9 +351,29 @@ fun getDragDirection(dragAmount: Offset):com.datoban.slidepuzzle.Direction?{
 
 
 fun generateGrid(): List<List<Int>>{
-    return (0 .. 8).shuffled().chunked(3)
-}
+    var number_list: List<Int>
+    do {
+        number_list = (0..8).shuffled()
+    } while (!canBeResolve(number_list))
 
+    return number_list.chunked(3)
+}
+fun canBeResolve(puzzle_list: List<Int>):Boolean{
+    var without_zero = puzzle_list.filter { it != 0 }
+    //Una inversión ocurre cuando un número mayor aparece antes que uno menor
+    var number_math_inversion = 0
+    //Compara el número actual con el siguiente en la lista
+    for (i in without_zero.indices){
+        for(j in i+1 until without_zero.size){
+            if (without_zero[i]>without_zero[j]){
+                number_math_inversion++
+            }
+
+        }
+    }
+    //retorna true si la cantidad de inversiones es par
+    return number_math_inversion % 2 == 0
+}
 fun findEmptyPosition(grid:List<List<Int>>): Pair<Int, Int> {
     grid.forEachIndexed { y, row ->
         row.forEachIndexed { x, number ->
