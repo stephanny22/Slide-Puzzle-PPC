@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -90,20 +91,21 @@ fun SlidingPuzzle(navController: NavController) {
                                     if (touchedBox != null) {
 
                                         val (newGrid, newEmptyPosition) =
-                                            grid.tryMove(direction, emptyPosition, touchedBox)
+                                            viewModel.grid.tryMove(direction, viewModel.emptyPosition, touchedBox)
 
                                         if (newGrid != grid) {
 
                                             viewModel.move(newGrid, newEmptyPosition)
 
-                                            if (isSolved(newGrid)) {
-                                                navController.navigate("win/$moves") {
-                                                    popUpTo("game") { inclusive = true }
+                                            if (isSolved(viewModel.grid)) {
+                                                navController.navigate("win/${viewModel.moves}"){
+                                                    popUpTo("game"){inclusive=true}
+                                                }
                                                 }
                                             }
                                         }
                                     }
-                                }
+
                             }
                         )
                     }
@@ -113,7 +115,10 @@ fun SlidingPuzzle(navController: NavController) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Button(onClick = {
+            Button(
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Magenta.copy(alpha = 0.5f)),
+                onClick = {
                 viewModel.resetGame()
             }) {
                 Text("Reiniciar")
@@ -180,7 +185,7 @@ fun DrawScope.drawBoxwithNumber(number:Int,x: Int,y:Int,cellSize: Float,padding:
     val top = y * cellSize + padding.toPx()
 
     drawRoundRect(
-        color = Color.Green.copy( 0.5f), 
+        color = Color.Magenta.copy( 0.5f),
         topLeft = Offset(left,top), 
         size= Size(boxSize,boxSize), 
         cornerRadius = CornerRadius(16.dp.toPx(),16.dp.toPx())
