@@ -29,22 +29,6 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SlidePuzzleTheme {
-        Greeting("Android")
-    }
-}
-
-@Composable
 fun AppNavigation() {
 
     val navController = rememberNavController()
