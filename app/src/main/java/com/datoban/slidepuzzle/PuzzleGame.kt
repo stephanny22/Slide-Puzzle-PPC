@@ -45,12 +45,11 @@ fun PreviewPuzzle() {
 @Composable
 fun SlidingPuzzle(navController: NavController) {
 
-    // Modificación realizada por Ingrid Rubio
-    // Se agrega título "Puzzle Taller" y botón para reiniciar debajo del tablero
+    val viewModel: PuzzleViewModel = viewModel()
 
-    var grid by remember { mutableStateOf(generateGrid()) }
-    var emptyPosition by remember { mutableStateOf(findEmptyPosition(grid)) }
-    var moves by remember { mutableStateOf(0) }
+    val grid = viewModel.grid
+    val emptyPosition = viewModel.emptyPosition
+    val moves = viewModel.moves
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -95,9 +94,7 @@ fun SlidingPuzzle(navController: NavController) {
 
                                         if (newGrid != grid) {
 
-                                            grid = newGrid
-                                            emptyPosition = newEmptyPosition
-                                            moves++
+                                            viewModel.move(newGrid, newEmptyPosition)
 
                                             if (isSolved(newGrid)) {
                                                 navController.navigate("win/$moves") {
@@ -117,9 +114,7 @@ fun SlidingPuzzle(navController: NavController) {
             Spacer(modifier = Modifier.height(20.dp))
 
             Button(onClick = {
-                grid = generateGrid()
-                emptyPosition = findEmptyPosition(grid)
-                moves = 0
+                viewModel.resetGame()
             }) {
                 Text("Reiniciar")
             }
