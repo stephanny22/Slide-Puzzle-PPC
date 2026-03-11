@@ -35,6 +35,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 
+
 @Preview(showBackground = true, showSystemUi= true)
 @Composable
 fun PreviewPuzzle() {
@@ -93,7 +94,7 @@ fun SlidingPuzzle(navController: NavController) {
                                         val (newGrid, newEmptyPosition) =
                                             viewModel.grid.tryMove(direction, viewModel.emptyPosition, touchedBox)
 
-                                        if (newGrid != grid) {
+                                        if (newGrid != viewModel.grid) {
 
                                             viewModel.move(newGrid, newEmptyPosition)
 
